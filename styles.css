@@ -1,0 +1,13 @@
+*{box-sizing: border-box;}
+
+body {
+    margin: 0;
+    padding: 35px;
+    background-color: #555;
+}
+
+canvas {
+    display: grid;
+    margin: 0 auto;
+    border: 8px solid #fff;
+}
