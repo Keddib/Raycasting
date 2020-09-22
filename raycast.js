@@ -24,6 +24,14 @@ class Map {
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         ];
     }
+    isThisWall(x, y){
+        if (x < 0 || x > WINDOW_WIDTH || y < 0 || y > WINDOW_HIEGHT){
+            return true;
+        }
+        let gridIndexX = Math.floor(x / TILE_SIZE);
+        let gridIndexY = Math.floor(y / TILE_SIZE);
+        return this.grid[gridIndexY][gridIndexX] != 0;
+    }
     render(){
         for (let i = 0; i < NUM_MAP_ROWS ; i++){
             for(let j = 0; j < NUM_MAP_COLS; j++){
@@ -42,7 +50,7 @@ class Map {
 
 class Player {
     constructor() {
-        this.x = WINDOW_WIDTH / 2;
+        this.x = WINDOW_WIDTH / 2; 
         this.y = WINDOW_HIEGHT / 2;
         this.radius = 10;
         this.turnDirection = 0; //if left -1 oppeset is +1
@@ -55,8 +63,12 @@ class Player {
         // TODO: update player position
         this.rotationAngle += this.turnDirection * this.rotationSpeed;
         let moveStep = this.walkDirection * this.moveSpeed;
-        this.x += Math.cos(this.rotationAngle) * moveStep;
-        this.y += Math.sin(this.rotationAngle) * moveStep;
+        let newPlayerX = this.x + Math.cos(this.rotationAngle) * moveStep;
+        let newPlayerY = this.y + Math.sin(this.rotationAngle) * moveStep;
+        if (!grid.isThisWall(newPlayerX, newPlayerY)) {
+            this.x = newPlayerX;
+            this.y = newPlayerY;
+        }
     }
     render() {
         noStroke();
