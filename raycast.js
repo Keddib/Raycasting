@@ -42,7 +42,7 @@ class Map {
         let tileX = j * TILE_SIZE;
         let tileY = i * TILE_SIZE;
         let tileColor = this.grid[i][j] === 1 ? "#222" : "#fff";
-        stroke("#222");
+        noStroke();
         fill(tileColor);
         rect(tileX, tileY, TILE_SIZE);
       }
@@ -132,11 +132,16 @@ class Ray {
     xstep *= this.isRayFacingRight && xstep < 0 ? -1 : 1;
     var nextHorzTouchx = xintercept;
     var nextHorzTouchy = yintercept;
-    if (this.isRayFacingUp) {
-      nextHorzTouchy--;
-    }
+    // if (this.isRayFacingUp) {
+    //   nextHorzTouchy--;
+    // }
     while (isInsideGrid(nextHorzTouchx, nextHorzTouchy)) {
-      if (grid.isThisWall(nextHorzTouchx, nextHorzTouchy)) {
+      if (
+        grid.isThisWall(
+          nextHorzTouchx,
+          this.isRayFacingUp ? nextHorzTouchy - 1 : nextHorzTouchy
+        )
+      ) {
         foundHorzWallHit = true;
         horzWallHitX = nextHorzTouchx;
         horzWallHitY = nextHorzTouchy;
@@ -169,11 +174,16 @@ class Ray {
     ystep *= this.isRayFacingDown && ystep < 0 ? -1 : 1;
     var nextVerTouchx = xintercept;
     var nextVerTouchy = yintercept;
-    if (this.isRayFacingLeft) {
-      nextVerTouchx--;
-    }
+    // if (this.isRayFacingLeft) {
+    //   nextVerTouchx--;
+    // }
     while (isInsideGrid(nextVerTouchx, nextVerTouchy)) {
-      if (grid.isThisWall(nextVerTouchx, nextVerTouchy)) {
+      if (
+        grid.isThisWall(
+          this.isRayFacingLeft ? nextVerTouchx - 1 : nextVerTouchx,
+          nextVerTouchy
+        )
+      ) {
         foundVerWallHit = true;
         verWallHitX = nextVerTouchx;
         verWallHitY = nextVerTouchy;
@@ -201,7 +211,7 @@ class Ray {
     this.wasHitVertical = verHitDistance < horHitDistance;
   }
   render() {
-    stroke("rgba(255,166,77,0.8)");
+    stroke("rgba(144,238,144, 0.8)");
     line(fPlayer.x, fPlayer.y, this.wallHitX, this.wallHitY);
   }
 }
