@@ -60,7 +60,7 @@ class Player {
     this.sideDirection = 0;
     this.rotationAngle = Math.PI / 2;
     this.moveSpeed = 5.0;
-    this.rotationSpeed = 5 * (Math.PI / 180);
+    this.rotationSpeed = 2 * (Math.PI / 180);
   }
   update() {
     // TODO: update player position
@@ -87,19 +87,77 @@ class Player {
     noStroke();
     fill("red");
     circle(this.x, this.y, this.radius);
-    stroke("red");
-    line(
-      this.x,
-      this.y,
-      this.x + Math.cos(this.rotationAngle) * 30,
-      this.y + Math.sin(this.rotationAngle) * 30
-    );
+    // stroke("red");
+    // line(
+    //   this.x,
+    //   this.y,
+    //   this.x + Math.cos(this.rotationAngle) * 30,
+    //   this.y + Math.sin(this.rotationAngle) * 30
+    // );
   }
 }
 
 class Ray {
   constructor(rayAngle) {
-    this.rayAngle = rayAngle;
+    this.rayAngle = normalizeAngle(rayAngle);
+    this.wallHitX = 0;
+    this.wallHitY = 0;
+    this.distance = 0;
+
+    this.isRayFacingDown = this.rayAngle > 0 && this.rayAngle < Math.PI;
+    this.isRayFacingUp = !this.isRayFacingDown;
+
+    this.isRayFacingRight =
+      this.rayAngle < 0.5 * Math.PI || this.rayAngle > 1.5 * Math.PI;
+    this.isRayFacingLeft = !this.isRayFacingRight;
+  }
+  cast(columnId) {
+    // getHwall hundle the horizontal ray grid intersection code
+    // console.log("RIGHT?", this.isRayFacingRight);
+    var xintercept, yintercept;
+    var xstep, ystep;
+    ///////////////////////////////////////////
+    // HORIZONTAL RAY-GRID INTERSECTION CODE
+    ///////////////////////////////////////////
+    var foundHorzWallHit = false;
+    var wallHitX = 0;
+    var wallHitY = 0;
+
+    // Find the y-coordinate of the closest horizontal grid intersenction
+    yintercept = Math.floor(fPlayer.y / TILE_SIZE) * TILE_SIZE;
+    yintercept += this.isRayFacingDown ? TILE_SIZE : 0;
+
+    // Find the x-coordinate of the closest horizontal grid intersection
+    xintercept = fPlayer.x + (yintercept - fPlayer.y) / Math.tan(this.rayAngle);
+
+    // Calculate the increment xstep and ystep
+    ystep = TILE_SIZE;
+    ystep *= this.isRayFacingUp ? -1 : 1;
+
+    xstep = TILE_SIZE / Math.tan(this.rayAngle);
+    xstep *= this.isRayFacingLeft && xstep > 0 ? -1 : 1;
+    xstep *= this.isRayFacingRight && xstep < 0 ? -1 : 1;
+    var nextHorzTouchx = xintercept;
+    var nextHorzTouchy = yintercept;
+    if (this.isRayFacingUp) nextHorzTouchy--;
+    while (isInsideGrid(nextHorzTouchx, nextHorzTouchy)) {
+      if (grid.isThisWall(nextHorzTouchx, nextHorzTouchy)) {
+        foundHorzWallHit = true;
+        wallHitX = nextHorzTouchx;
+        wallHitY = nextHorzTouchy;
+        noStroke();
+        fill("orange");
+        circle(nextHorzTouchx, nextHorzTouchy, 5);
+        stroke("red");
+        line(fPlayer.x, fPlayer.y, nextHorzTouchx, nextHorzTouchy);
+        break;
+      } else {
+        nextHorzTouchx += xstep;
+        nextHorzTouchy += ystep;
+      }
+    }
+
+    //gerVwall hundle the vertical ray grid intersection code
   }
   render() {
     stroke("rgba(255, 0, 0, 0.2)");
@@ -112,9 +170,18 @@ class Ray {
   }
 }
 
-var grid = new Map();
-var fPlayer = new Player();
-var rays = [];
+function normalizeAngle(angle) {
+  angle = angle % (2 * Math.PI);
+  if (angle < 0) {
+    angle = 2 * Math.PI + angle;
+  }
+  return angle;
+}
+
+function isInsideGrid(x, y) {
+  if (x >= 0 && x <= WINDOW_WIDTH && y >= 0 && y <= WINDOW_HIEGHT) return true;
+  return false;
+}
 
 function keyPressed() {
   if (keyCode == 87) {
@@ -147,6 +214,9 @@ function keyReleased() {
     fPlayer.turnDirection = 0;
   }
 }
+var grid = new Map();
+var fPlayer = new Player();
+var rays = [];
 
 function castAllRays() {
   var columnId = 0;
@@ -154,10 +224,10 @@ function castAllRays() {
   var rayAngle = fPlayer.rotationAngle - FOV_ANGLE / 2;
   rays = [];
   //loop all columns casting the rays
-  for (let i = 0; i < NUM_RAYS; i++) {
-    // for (let i = 0; i < 1; i++) {
+  // for (let i = 0; i < NUM_RAYS; i++) {
+  for (let i = 0; i < 1; i++) {
     var ray = new Ray(rayAngle);
-    //todo: ray.cast()....
+    ray.cast(columnId);
     rays.push(ray);
     rayAngle += FOV_ANGLE / NUM_RAYS;
     columnId++;
@@ -177,10 +247,8 @@ function update() {
 
 function draw() {
   // render all objects frame by frame
-  update();
   grid.render();
-  for (ray of rays) {
-    ray.render();
-  }
+  update();
   fPlayer.render();
+  rays[0].render();
 }
