@@ -59,7 +59,7 @@ class Player {
     this.walkDirection = 0; // if back -1 opposet id +1
     this.sideDirection = 0;
     this.rotationAngle = Math.PI / 2;
-    this.moveSpeed = 5.0;
+    this.moveSpeed = 1.0;
     this.rotationSpeed = 2 * (Math.PI / 180);
   }
   update() {
