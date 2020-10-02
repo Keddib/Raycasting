@@ -299,10 +299,13 @@ function castAllRays() {
 function render3DProjection() {
   for (let i = 0; i < NUM_RAYS; i++) {
     var ray = rays[i];
-    var rayDistance = ray.distance;
+    var correctWallDistance =
+      ray.distance * Math.cos(ray.rayAngle - fPlayer.rotationAngle);
     var distanceProjPlane = WINDOW_WIDTH / 2 / Math.tan(FOV_ANGLE / 2);
-    var wallStipeHieght = (TILE_SIZE / rayDistance) * distanceProjPlane;
-    fill("rgba(255, 255, 255, 1.0)");
+    var wallStipeHieght = (TILE_SIZE / correctWallDistance) * distanceProjPlane;
+    let opaticy = wallStipeHieght / WINDOW_HIEGHT;
+    opaticy += 0.4;
+    fill(`rgba(255, 255, 255, ${opaticy})`);
     noStroke();
     rect(
       i * RAY_WIDTH,
