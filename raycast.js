@@ -63,7 +63,7 @@ class Player {
     this.walkDirection = 0; // if back -1 opposet id +1
     this.sideDirection = 0;
     this.rotationAngle = Math.PI / 2;
-    this.moveSpeed = 3.0;
+    this.moveSpeed = 5.0;
     this.rotationSpeed = 2 * (Math.PI / 180);
   }
   update() {
@@ -300,15 +300,15 @@ function render3DProjection() {
   for (let i = 0; i < NUM_RAYS; i++) {
     var ray = rays[i];
     var rayDistance = ray.distance;
-    var distanceToProjPlane = WINDOW_WIDTH / 2 / Math.tan(FOV_ANGLE / 2);
-    var ProjPlaneHieght = (TILE_SIZE / rayDistance) * distanceToProjPlane;
-    fill("lightblue");
+    var distanceProjPlane = WINDOW_WIDTH / 2 / Math.tan(FOV_ANGLE / 2);
+    var wallStipeHieght = (TILE_SIZE / rayDistance) * distanceProjPlane;
+    fill("rgba(255, 255, 255, 1.0)");
     noStroke();
     rect(
       i * RAY_WIDTH,
-      WINDOW_HIEGHT / 2 - ProjPlaneHieght / 2,
+      WINDOW_HIEGHT / 2 - wallStipeHieght / 2,
       RAY_WIDTH,
-      ProjPlaneHieght
+      wallStipeHieght
     );
   }
 }
