@@ -6,9 +6,9 @@ const WINDOW_HIEGHT = NUM_MAP_ROWS * TILE_SIZE;
 
 const RADIUN = Math.PI / 180;
 const FOV_ANGLE = 60 * RADIUN;
-const RAY_WIDTH = 5;
+const RAY_WIDTH = 1;
 const NUM_RAYS = WINDOW_WIDTH / RAY_WIDTH;
-
+const MINIMAP_SCALE_FACTOR = 0.2;
 class Map {
   constructor() {
     this.grid = [
@@ -44,7 +44,11 @@ class Map {
         let tileColor = this.grid[i][j] === 1 ? "#222" : "#fff";
         noStroke();
         fill(tileColor);
-        rect(tileX, tileY, TILE_SIZE);
+        rect(
+          MINIMAP_SCALE_FACTOR * tileX,
+          MINIMAP_SCALE_FACTOR * tileY,
+          MINIMAP_SCALE_FACTOR * TILE_SIZE
+        );
       }
     }
   }
@@ -59,7 +63,7 @@ class Player {
     this.walkDirection = 0; // if back -1 opposet id +1
     this.sideDirection = 0;
     this.rotationAngle = Math.PI / 2;
-    this.moveSpeed = 1.0;
+    this.moveSpeed = 3.0;
     this.rotationSpeed = 2 * (Math.PI / 180);
   }
   update() {
@@ -86,7 +90,11 @@ class Player {
   render() {
     noStroke();
     fill("red");
-    circle(this.x, this.y, this.radius);
+    circle(
+      MINIMAP_SCALE_FACTOR * this.x,
+      MINIMAP_SCALE_FACTOR * this.y,
+      MINIMAP_SCALE_FACTOR * this.radius
+    );
   }
 }
 
@@ -106,7 +114,6 @@ class Ray {
   }
   cast(columnId) {
     // getHwall hundle the horizontal ray grid intersection code
-    // console.log("RIGHT?", this.isRayFacingRight);
     var xintercept, yintercept;
     var xstep, ystep;
     ///////////////////////////////////////////
@@ -212,7 +219,12 @@ class Ray {
   }
   render() {
     stroke("rgba(144,238,144, 0.8)");
-    line(fPlayer.x, fPlayer.y, this.wallHitX, this.wallHitY);
+    line(
+      MINIMAP_SCALE_FACTOR * fPlayer.x,
+      MINIMAP_SCALE_FACTOR * fPlayer.y,
+      MINIMAP_SCALE_FACTOR * this.wallHitX,
+      MINIMAP_SCALE_FACTOR * this.wallHitY
+    );
   }
 }
 
@@ -284,6 +296,23 @@ function castAllRays() {
   }
 }
 
+function render3DProjection() {
+  for (let i = 0; i < NUM_RAYS; i++) {
+    var ray = rays[i];
+    var rayDistance = ray.distance;
+    var distanceToProjPlane = WINDOW_WIDTH / 2 / Math.tan(FOV_ANGLE / 2);
+    var ProjPlaneHieght = (TILE_SIZE / rayDistance) * distanceToProjPlane;
+    fill("lightblue");
+    noStroke();
+    rect(
+      i * RAY_WIDTH,
+      WINDOW_HIEGHT / 2 - ProjPlaneHieght / 2,
+      RAY_WIDTH,
+      ProjPlaneHieght
+    );
+  }
+}
+
 function setup() {
   // TODO: initilize all objects;
   createCanvas(WINDOW_WIDTH, WINDOW_HIEGHT);
@@ -297,8 +326,10 @@ function update() {
 
 function draw() {
   // render all objects frame by frame
-  grid.render();
+  clear("#212121");
   update();
+  render3DProjection();
+  grid.render();
   fPlayer.render();
   for (ray of rays) {
     ray.render();
