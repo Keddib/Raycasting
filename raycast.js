@@ -64,7 +64,7 @@ class Player {
     this.sideDirection = 0;
     this.rotationAngle = Math.PI / 2;
     this.moveSpeed = 5.0;
-    this.rotationSpeed = 2 * (Math.PI / 180);
+    this.rotationSpeed = 5 * (Math.PI / 180);
   }
   update() {
     // TODO: update player position
@@ -303,16 +303,25 @@ function render3DProjection() {
       ray.distance * Math.cos(ray.rayAngle - fPlayer.rotationAngle);
     var distanceProjPlane = WINDOW_WIDTH / 2 / Math.tan(FOV_ANGLE / 2);
     var wallStipeHieght = (TILE_SIZE / correctWallDistance) * distanceProjPlane;
-    let opaticy = wallStipeHieght / WINDOW_HIEGHT;
-    opaticy += 0.4;
-    fill(`rgba(255, 255, 255, ${opaticy})`);
+    var topPosition = WINDOW_HIEGHT / 2 - wallStipeHieght / 2;
+    var bottomPosition = WINDOW_HIEGHT / 2 + wallStipeHieght / 2;
+    let color;
+    if (ray.wasHitVertical) color = "rgb(194,186,189)";
+    else color = "rgb(255,255,255)";
+    fill(color);
     noStroke();
-    rect(
-      i * RAY_WIDTH,
-      WINDOW_HIEGHT / 2 - wallStipeHieght / 2,
-      RAY_WIDTH,
-      wallStipeHieght
-    );
+    rect(i * RAY_WIDTH, topPosition, RAY_WIDTH, wallStipeHieght);
+    // fill("rgb(173,216,230)");
+    // noStroke();
+    // rect(i * RAY_WIDTH, 0, RAY_WIDTH, topPosition);
+    // fill("rgb(196,98,16)");
+    // noStroke();
+    // rect(
+    //   i * RAY_WIDTH,
+    //   bottomPosition,
+    //   RAY_WIDTH,
+    //   WINDOW_HIEGHT - (topPosition + wallStipeHieght)
+    // );
   }
 }
 
